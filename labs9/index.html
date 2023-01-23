@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+    <head> 
+         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+         <title>cube</title>
+       <script src="./js/three.js"></script>
+     <script src="./js/TrackballControls.js"></script>
+     <script src="./js/tween.js"></script>
+  </head>
+  <body>
+    <video id="video"  loop
+    style="display:none; position: absolute; left: 15px; top: 75px;"
+    src="./movies/mozart.mp4"> 
+</video>
+        
+    <script>
+
+    
+    init();
+  
+      function init()
+      {
+        var renderer = window.WebGLRenderingContext ? new THREE.WebGLRenderer({antialias:true}) : new THREE.CanvasRenderer();
+        renderer.setClearColor(new THREE.Color(0xEEEEEE));
+                renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.shadowMapEnabled = true;
+        document.body.appendChild( renderer.domElement );
+        var camera = new THREE.PerspectiveCamera(45,window.innerWidth / window.innerHeight, 0.1,1000);
+        var scene = new THREE.Scene();
+      
+        var controls = new THREE.TrackballControls( camera );
+                        
+        var ambientLight = new THREE.AmbientLight(0xffffff);
+                 scene.add(ambientLight);
+        var spotLight = new THREE.SpotLight( 0xffffff );
+        
+               spotLight.position.set( -80,120, -20 );
+        spotLight.castShadow = true;
+                scene.add( spotLight );
+                const videoTexture = new THREE.VideoTexture(video);
+                videoTexture.needsUpdate = true;
+                const videoMaterial = new THREE.MeshBasicMaterial({
+                    map: videoTexture,
+                    side: THREE.FrontSide,
+                    toneMapped: false,
+                });
+                videoMaterial.needsUpdate = true;
+        var fontLoader = new THREE.FontLoader();
+        fontLoader.load("./fonts/Roboto.json",function(tex){ 
+        var text_Geometry = new THREE.TextGeometry("Математичний факультет", {
+        size: 2,
+        height: 2,
+        curveSegments: 2,
+        bevelEnabled: true, 
+        bevelThickness: 1, 
+        bevelSize: 1, 
+        material: 0, 
+        extrudeMaterial: 1,         
+        font: tex});
+
+        var Texture = THREE.ImageUtils.loadTexture( 'images/grass.jpg' ); 
+        Texture.wrapS = Texture.wrapT = THREE.RepeatWrapping; 
+        Texture.repeat.set( 0.05, 0.05 ); 
+        var Material = new THREE.MeshBasicMaterial( { map: Texture } ); 
+        var ExtrTexture =  THREE.ImageUtils.loadTexture( 'images/sky.jpg' ); 
+        ExtrTexture.wrapS = ExtrTexture.wrapT  = THREE.RepeatWrapping;
+        ExtrTexture.offset.set( 0, 0.7 );
+        ExtrTexture.repeat.set( 0, 0.13 ); 
+        var extrMaterial =  new THREE.MeshBasicMaterial( { map: ExtrTexture } ); 
+        var materials = [ Material, extrMaterial ]; 
+        var text = new THREE.Mesh(text_Geometry, materials );
+        var circle_position = { x : -90, y: 100 };  
+        var circle_target = {};
+        circle_target.x = 70;
+        circle_target.y = 0;    
+                
+                var circle_geometry = new THREE.CircleGeometry( 6, 100, 0, 2*Math.PI );
+        var circle_texture = new THREE.TextureLoader().load( 'images/logo.jpg' );//load texture
+        var circle_material = new THREE.MeshLambertMaterial({map: circle_texture});
+        circle_material.side = THREE.DoubleSide;
+        var circle = new THREE.Mesh(circle_geometry, circle_material);
+        circle.castShadow = true;
+        circle.position.x=-90;
+        circle.position.y=100;
+        scene.add(circle);
+		var circle_tween = new TWEEN.Tween(circle_position).to(circle_target, 4000);
+        circle_tween.easing(TWEEN.Easing.Quadratic.In);
+        circle_tween.start();
+        
+          circle_tween.onUpdate(function(){
+          circle.position.x = circle_position.x;
+          circle.position.y =circle_position.y;
+          circle.rotation.x += 0.01;
+          circle.rotation.y += 0.01;          
+          circle.rotation.z += 0.01;
+          
+          });
+
+          circle_tween.repeat(Infinity);
+        
+        var text_position = { x : -70, y: 30 };  
+        var text_target = {};
+        text_target.x = 50;
+        text_target.y = 30;     
+        text.position.x=-300;
+        text.position.y=100;
+        scene.add(text);
+        var text_tween = new TWEEN.Tween(text_position).to(text_target, 10000);
+        text_tween.easing(TWEEN.Easing.Quadratic.In);
+        text_tween.start();
+        text_tween.onUpdate(function(){
+          text.position.x = text_position.x;
+          text.position.y = text_position.y;
+          text.rotation.x += 0.1;
+        });
+        text_tween.repeat(Infinity);
+        text_tween.yoyo(true);
+        
+        var video = document.getElementById("video");
+                video.onloadeddata = function () {
+                    video.play();
+                };
+                const geometry = new THREE.CubeGeometry( 30, 60, 5 );
+                const cube = new THREE.Mesh( geometry, videoMaterial );
+                cube.position.x = -5;
+                cube.position.y = 10;
+                cube.position.z = 0;
+                scene.add( cube );
+                var light = new THREE.DirectionalLight();
+        light.position.set(0, 30, 20);
+        scene.add(light);
+
+        var cube_position = { x : -90, y: 0 };  
+        var cube_target = {};
+        cube_target.x = 70;
+        cube_target.y = -20;  
+
+        var cube_tween = new TWEEN.Tween(cube_position).to(cube_target, 10000);
+        cube_tween.easing(TWEEN.Easing.Quadratic.In);
+        cube_tween.start();
+        cube_tween.onUpdate(function(){
+          cube.position.x = cube_position.x;
+          cube.position.y =cube_position.y;         
+          cube.rotation.z += 0.02;
+          
+          });
+
+          cube_tween.repeat(Infinity);
+          cube_tween.yoyo(true);
+          
+        })
+        camera.position.x = -20; 
+        camera.position.y = 70; 
+        camera.position.z = 100; 
+        camera.lookAt(scene.position);
+        
+        renderScene();
+        
+        function renderScene() 
+        {
+        TWEEN.update();
+        requestAnimationFrame( renderScene );
+        controls.update();
+        videoTexture.needsUpdate = true;
+        renderer.render( scene, camera );
+        }  
+      
+};
+
+    </script>
+  </body>
+</html>
